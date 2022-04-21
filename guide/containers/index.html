@@ -1,0 +1,45 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="ie=edge"><title>Containers - Kubernetes Introduction</title><meta name=viewport content="width=device-width,initial-scale=1"><link rel=icon href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/favicon.png><link rel=stylesheet href=/VIA-Kubernetes-Introduction/css/style.min.e0a2ab335854ea3265fd2ea419dc847fab383c2485602b9c47c3a9eb7c4ffce7.css></head><body class="page page-default-single"><div id=main-menu-mobile class=main-menu-mobile><ul><li class=menu-item-home><a href=/VIA-Kubernetes-Introduction/><span>Home</span></a></li><li class=menu-item-guide><a href=/VIA-Kubernetes-Introduction/guide/><span>Guide</span></a></li></ul></div><div class=wrapper><div class=header><div class=container><div class=logo><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/><img alt=Logo src=/VIA-Kubernetes-Introduction/images/logo.svg></a></div><div class=logo-mobile><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/><img alt=Logo src=/VIA-Kubernetes-Introduction/images/logo-mobile.svg></a></div><div id=main-menu class=main-menu><ul><li class=menu-item-home><a href=/VIA-Kubernetes-Introduction/><span>Home</span></a></li><li class=menu-item-guide><a href=/VIA-Kubernetes-Introduction/guide/><span>Guide</span></a></li></ul></div><button id=toggle-main-menu-mobile class="hamburger hamburger--slider" type=button>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button></div></div><div class="container pt-2 pt-md-6 pb-3 pb-md-6"><div class=row><div class="col-12 col-md-3 mb-3"><div class=sidebar><div class=docs-menu><h4>Guide</h4><ul><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/setup/>Installation</a></li><li class=active><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/containers/>Containers</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/configure/></a></li></ul></div></div></div><div class="col-12 col-md-9"><h1 class=title>Containers</h1><div class=content><p>A container is an &ldquo;isolated process&rdquo;, it&rsquo;s easiest to just think of it
+as a VM.<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> The benefits of containers is that you have a self-contained
+run-time environment that describes how to run your application.</p><p>For example, let&rsquo;s say I had written a Java server application, and I hand
+it off to you and say &ldquo;run it&rdquo;. What are you supposed to do with it? First,
+you need to figure out which version of Java it needs, then you need to know
+if it requires a configuration file, is it supposed to run inside TomCat or
+as a stand-alone server?</p><p>It can be even more challenging to be told &ldquo;this is our production server,
+figure out how it works&rdquo;. Then you are stuck with nothing and have to rely
+on advanced bash or batch scripting and diagnose the machine from scratch.</p><p>Containers get around this by providing a structured and unified way of
+describing &ldquo;how to run my application&rdquo;.</p><p>Docker is not the only solution for this, but they were the pioneers of
+containerization, and it has quickly become the golden standard of how
+we operate our applications across the industry.</p><h2 id=your-first-docker-application>Your first Docker application</h2><p>To keep it simple we will stick to a very simple Python application. You
+don&rsquo;t have to install Python for this example.</p><p>First create a folder somewhere for this project. Then put the following
+file in that folder calling it <code>app.py</code>:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>flask</span> <span class=kn>import</span> <span class=n>Flask</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>app</span> <span class=o>=</span> <span class=n>Flask</span><span class=p>(</span><span class=vm>__name__</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@app</span><span class=o>.</span><span class=n>route</span><span class=p>(</span><span class=s2>&#34;/&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>hello</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=s2>&#34;Hello World!&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>app</span><span class=o>.</span><span class=n>run</span><span class=p>(</span><span class=n>host</span><span class=o>=</span><span class=s1>&#39;0.0.0.0&#39;</span><span class=p>)</span>
+</span></span></code></pre></div><p>We&rsquo;ll not care too much about the Python contents, just know that running
+this Python script will start a webserver on port <code>5000</code> which will answer
+<code>"Hello World!"</code> on the root path.</p><p>So, now we&rsquo;ll have to write what&rsquo;s called a <code>Dockerfile</code><sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup> which describes
+how to build one of these containers.</p><p>Create the following file and call it &ldquo;Dockerfile&rdquo;</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=k>FROM</span><span class=s> python:3.8</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> app.py /app/<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> pip install flask<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>EXPOSE</span><span class=s> 5000</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENTRYPOINT</span> <span class=p>[</span><span class=s2>&#34;python&#34;</span><span class=p>]</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;app.py&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></div><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>If you want a quick introduction to what containers actually are,
+have a look a look at
+<a href="https://www.youtube.com/watch?v=8fi7uSYlOdc">this tech talk by Liz Rice</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p><a href=https://docs.docker.com/engine/reference/builder/>https://docs.docker.com/engine/reference/builder/</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div></div></div></div></div></div><div class=sub-footer><div class=container><div class=row><div class=col-12><div class=sub-footer-inner><ul><li class=zerostatic><a href=https://www.zerostatic.io>www.zerostatic.io</a></li></ul></div></div></div></div></div><script type=text/javascript src=/VIA-Kubernetes-Introduction/js/scripts.min.55e8e1e2e7596c9a982bc04119cee1e2d4624c4c5a2dc0e9eb63ce401be14a24.js></script></body></html>
