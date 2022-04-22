@@ -1,5 +1,5 @@
 <!doctype html><html lang=en><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="ie=edge"><title>Containers - Kubernetes Introduction</title><meta name=viewport content="width=device-width,initial-scale=1"><link rel=icon href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/favicon.png><link rel=stylesheet href=/VIA-Kubernetes-Introduction/css/style.min.e0a2ab335854ea3265fd2ea419dc847fab383c2485602b9c47c3a9eb7c4ffce7.css></head><body class="page page-default-single"><div id=main-menu-mobile class=main-menu-mobile><ul><li class=menu-item-home><a href=/VIA-Kubernetes-Introduction/><span>Home</span></a></li><li class=menu-item-guide><a href=/VIA-Kubernetes-Introduction/guide/><span>Guide</span></a></li></ul></div><div class=wrapper><div class=header><div class=container><div class=logo><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/><img alt=Logo src=/VIA-Kubernetes-Introduction/images/logo.svg></a></div><div class=logo-mobile><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/><img alt=Logo src=/VIA-Kubernetes-Introduction/images/logo-mobile.svg></a></div><div id=main-menu class=main-menu><ul><li class=menu-item-home><a href=/VIA-Kubernetes-Introduction/><span>Home</span></a></li><li class=menu-item-guide><a href=/VIA-Kubernetes-Introduction/guide/><span>Guide</span></a></li></ul></div><button id=toggle-main-menu-mobile class="hamburger hamburger--slider" type=button>
-<span class=hamburger-box><span class=hamburger-inner></span></span></button></div></div><div class="container pt-2 pt-md-6 pb-3 pb-md-6"><div class=row><div class="col-12 col-md-3 mb-3"><div class=sidebar><div class=docs-menu><h4>Guide</h4><ul><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/setup/>Installation</a></li><li class=active><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/containers/>Containers</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/configure/></a></li></ul></div></div></div><div class="col-12 col-md-9"><h1 class=title>Containers</h1><div class=content><p>A container is an &ldquo;isolated process&rdquo;, it&rsquo;s easiest to just think of it
+<span class=hamburger-box><span class=hamburger-inner></span></span></button></div></div><div class="container pt-2 pt-md-6 pb-3 pb-md-6"><div class=row><div class="col-12 col-md-3 mb-3"><div class=sidebar><div class=docs-menu><h4>Guide</h4><ul><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/setup/>Installation</a></li><li class=active><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/containers/>Containers</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/pod/>Pods</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/deployment/>Deployment</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/service/>Service</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/configure/></a></li></ul></div></div></div><div class="col-12 col-md-9"><h1 class=title>Containers</h1><div class=content><p>A container is an &ldquo;isolated process&rdquo;, it&rsquo;s easiest to just think of it
 as a VM.<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> The benefits of containers is that you have a self-contained
 run-time environment that describes how to run your application.</p><p>For example, let&rsquo;s say I had written a Java server application, and I hand
 it off to you and say &ldquo;run it&rdquo;. What are you supposed to do with it? First,
@@ -22,24 +22,58 @@ file in that folder calling it <code>app.py</code>:</p><div class=highlight><pre
 </span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=s2>&#34;Hello World!&#34;</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>terminate</span><span class=p>(</span><span class=n>signal</span><span class=p>,</span> <span class=n>frame</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>sys</span><span class=o>.</span><span class=n>exit</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Workaround for Flask not always respecting sigterm</span>
+</span></span><span class=line><span class=cl>    <span class=n>signal</span><span class=o>.</span><span class=n>signal</span><span class=p>(</span><span class=n>signal</span><span class=o>.</span><span class=n>SIGTERM</span><span class=p>,</span> <span class=n>terminate</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>    <span class=n>app</span><span class=o>.</span><span class=n>run</span><span class=p>(</span><span class=n>host</span><span class=o>=</span><span class=s1>&#39;0.0.0.0&#39;</span><span class=p>)</span>
 </span></span></code></pre></div><p>We&rsquo;ll not care too much about the Python contents, just know that running
 this Python script will start a webserver on port <code>5000</code> which will answer
 <code>"Hello World!"</code> on the root path.</p><p>So, now we&rsquo;ll have to write what&rsquo;s called a <code>Dockerfile</code><sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup> which describes
-how to build one of these containers.</p><p>Create the following file and call it &ldquo;Dockerfile&rdquo;</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=k>FROM</span><span class=s> python:3.8</span><span class=err>
+how to build one of these containers.</p><p>Create the following file and call it &ldquo;Dockerfile&rdquo;</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># This first line lets you build on top of an existing Docker image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># You can build on top of any image you&#39;d like, the image you create </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># here can be used to be built on top of as well</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> python:3.8</span><span class=err>
 </span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># The second line here sets the &#34;working directory&#34; inside the Docker </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># image.</span><span class=err>
 </span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /app</span><span class=err>
 </span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># You can copy specific files or even whole directories into the Docker</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># image. If you want to copy all of the current directory into the </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Docker image, you can write:</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># COPY . /app/</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># You can also just copy the files you need:</span><span class=err>
 </span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> app.py /app/<span class=err>
 </span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># With the RUN keyword you can run commands inside the image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># This is typically just regular bash commands </span><span class=err>
 </span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> pip install flask<span class=err>
 </span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># The EXPOSE doesn&#39;t actually do anything, it just adds information </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># about which port this Docker image uses</span><span class=err>
 </span></span></span><span class=line><span class=cl><span class=err></span><span class=k>EXPOSE</span><span class=s> 5000</span><span class=err>
 </span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Set the entrypoint in the Docker image, in Docker containers the </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># command that is run split into &#34;entrypoint&#34; and &#34;command&#34; </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Where &#34;entrypoint&#34; is the program to run and &#34;command&#34; is the </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># arguments for the program. </span><span class=err>
 </span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENTRYPOINT</span> <span class=p>[</span><span class=s2>&#34;python&#34;</span><span class=p>]</span><span class=err>
 </span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># This will ask Python to run the app.py file</span><span class=err>
 </span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;app.py&#34;</span><span class=p>]</span><span class=err>
-</span></span></span></code></pre></div><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>If you want a quick introduction to what containers actually are,
+</span></span></span></code></pre></div><p>Now you can build this file using:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker build -t pythonapp -f Dockerfile .
+</span></span></code></pre></div><p>This will build the image called &ldquo;pythonapp&rdquo; using the
+instructions in <code>Dockerfile</code> and executing those instructions inside
+the current directory (<code>.</code>).</p><p>Now that the image has been built you can run:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker run --rm -p 5000:5000 pythonapp
+</span></span></code></pre></div><p>This will run the image &ldquo;pythonapp&rdquo; and directing the port <code>5000</code> on
+your machine to the port <code>5000</code> inside the container. Try going to
+<a href=http://localhost:5000>localhost:5000</a> and see if you can access the
+Python application.</p><p>You could also run:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker run --rm -p 5005:5000 pythonapp
+</span></span></code></pre></div><p>And now you should be able to find the Python application on
+<a href=http://localhost:5005>localhost:5005</a> instead.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>If you want a quick introduction to what containers actually are,
 have a look a look at
 <a href="https://www.youtube.com/watch?v=8fi7uSYlOdc">this tech talk by Liz Rice</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p><a href=https://docs.docker.com/engine/reference/builder/>https://docs.docker.com/engine/reference/builder/</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div></div></div></div></div></div><div class=sub-footer><div class=container><div class=row><div class=col-12><div class=sub-footer-inner><ul><li class=zerostatic><a href=https://www.zerostatic.io>www.zerostatic.io</a></li></ul></div></div></div></div></div><script type=text/javascript src=/VIA-Kubernetes-Introduction/js/scripts.min.55e8e1e2e7596c9a982bc04119cee1e2d4624c4c5a2dc0e9eb63ce401be14a24.js></script></body></html>

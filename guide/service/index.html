@@ -1,0 +1,54 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="ie=edge"><title>Service - Kubernetes Introduction</title><meta name=viewport content="width=device-width,initial-scale=1"><link rel=icon href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/favicon.png><link rel=stylesheet href=/VIA-Kubernetes-Introduction/css/style.min.e0a2ab335854ea3265fd2ea419dc847fab383c2485602b9c47c3a9eb7c4ffce7.css></head><body class="page page-default-single"><div id=main-menu-mobile class=main-menu-mobile><ul><li class=menu-item-home><a href=/VIA-Kubernetes-Introduction/><span>Home</span></a></li><li class=menu-item-guide><a href=/VIA-Kubernetes-Introduction/guide/><span>Guide</span></a></li></ul></div><div class=wrapper><div class=header><div class=container><div class=logo><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/><img alt=Logo src=/VIA-Kubernetes-Introduction/images/logo.svg></a></div><div class=logo-mobile><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/><img alt=Logo src=/VIA-Kubernetes-Introduction/images/logo-mobile.svg></a></div><div id=main-menu class=main-menu><ul><li class=menu-item-home><a href=/VIA-Kubernetes-Introduction/><span>Home</span></a></li><li class=menu-item-guide><a href=/VIA-Kubernetes-Introduction/guide/><span>Guide</span></a></li></ul></div><button id=toggle-main-menu-mobile class="hamburger hamburger--slider" type=button>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button></div></div><div class="container pt-2 pt-md-6 pb-3 pb-md-6"><div class=row><div class="col-12 col-md-3 mb-3"><div class=sidebar><div class=docs-menu><h4>Guide</h4><ul><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/setup/>Installation</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/containers/>Containers</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/pod/>Pods</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/deployment/>Deployment</a></li><li class=active><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/service/>Service</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/configure/></a></li></ul></div></div></div><div class="col-12 col-md-9"><h1 class=title>Service</h1><div class=content><p>In Kubernetes the term &ldquo;Service&rdquo;<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> is used for loadbalancers inside the cluster.
+In this section, we will explore how to communicate with multiple pods using
+these loadbalancers so you can communicate with any of pods through a single
+interface.</p><p>To begin with, modify your Python application:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=l>import signal</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>import socket</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>import sys</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>from flask import Flask</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>app = Flask(__name__)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>@<span class=l>app.route(&#34;/&#34;)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>def hello()</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>return f&#34;Hello World! My name is {socket.gethostname()}&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>def terminate(signal, frame)</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>sys.exit(0)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>if __name__ == &#34;__main__&#34;:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># Workaround for Flask not always respecting sigterm</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>signal.signal(signal.SIGTERM, terminate)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>app.run(host=&#39;0.0.0.0&#39;)</span><span class=w>
+</span></span></span></code></pre></div><p>And run the <a href=../containers><code>docker build</code></a> command again:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=l>docker build -t pythonapp -f Dockerfile .</span><span class=w>
+</span></span></span></code></pre></div><p>Kubernetes will not automatically detect that your Docker image has been
+changed, but you can ask the <code>Deployment</code> to rollout a new set of pods
+using this command:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=l>kubectl rollout restart deployment pythonapp-deployment</span><span class=w>
+</span></span></span></code></pre></div><p>Now we should be able to see which pod we hit when we contact the pod.
+We just need a way to actually contact our pods. We&rsquo;ll create a
+NodePort Service<sup id=fnref:2><a href=#fn:2 class=footnote-ref role=doc-noteref>2</a></sup> to make contact with our pods.</p><p>Once again we&rsquo;ll use a Kubernetes YAML definition:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>pythonapp</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>NodePort</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>pythonapp</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=m>5000</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>targetPort</span><span class=p>:</span><span class=w> </span><span class=m>5000</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>nodePort</span><span class=p>:</span><span class=w> </span><span class=m>30005</span><span class=w>
+</span></span></span></code></pre></div><p>This <code>spec</code> has the type <code>NodePort</code> which means we will expose the service
+on a port on this node (your machine). Then we give it a <code>selector</code> which,
+like with <a href=../deployment>deployments</a>, is how we &ldquo;select&rdquo; the pods we
+want. In this case we want all pods with the label &ldquo;app&rdquo; set to &ldquo;pythonapp&rdquo;.</p><p>Then the Service has the <code>ports</code> which is simply a way to say that port
+<code>5000</code> on the service maps to port <code>5000</code> on the target (our pod). In
+this case we also specify that the port <code>30005</code> on our &ldquo;node&rdquo; will contact
+this service on port <code>5000</code>.</p><p>If you save this YAML to a file called <code>service.yaml</code> and run <code>kubectl apply -f service.yaml</code> then you should be able to go to
+<a href=http://localhost:30005>localhost:30005</a> and see that you reach one
+of your pods.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p><a href=https://kubernetes.io/docs/concepts/services-networking/service/>https://kubernetes.io/docs/concepts/services-networking/service/</a>&#160;<a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li><li id=fn:2 role=doc-endnote><p><a href=https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport>https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport</a>&#160;<a href=#fnref:2 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div></div></div></div></div></div><div class=sub-footer><div class=container><div class=row><div class=col-12><div class=sub-footer-inner><ul><li class=zerostatic><a href=https://www.zerostatic.io>www.zerostatic.io</a></li></ul></div></div></div></div></div><script type=text/javascript src=/VIA-Kubernetes-Introduction/js/scripts.min.55e8e1e2e7596c9a982bc04119cee1e2d4624c4c5a2dc0e9eb63ce401be14a24.js></script></body></html>
