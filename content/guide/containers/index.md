@@ -124,6 +124,8 @@ docker run --rm -p 5005:5000 pythonapp
 And now you should be able to find the Python application on 
 [localhost:5005](http://localhost:5005) instead.
 
+The next step is to [make your container a Kubernetes pod](../pod)
+
 [^1]: If you want a quick introduction to what containers actually are, 
 have a look a look at 
 [this tech talk by Liz Rice](https://www.youtube.com/watch?v=8fi7uSYlOdc) 

@@ -8,14 +8,14 @@ pygmentsCodefences = true
 pygmentsUseClasses = true
 pygmentsCodefencesGuessSyntax = true
 
+# Controls how many words are printed in the content summary on the guide homepage.
+# See https://gohugo.io/content-management/summaries/
+summaryLength = 15
 [module]
     [module.hugoVersion]
         extended = true
         min = "0.55.0"
 
-    # Controls how many words are printed in the content summary on the guide homepage.
-    # See https://gohugo.io/content-management/summaries/
-    summaryLength = 30
 
     [[menu.main]]
         name = "Home"

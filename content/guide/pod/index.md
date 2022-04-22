@@ -90,4 +90,6 @@ You can remove the pod by running:
 kubectl delete pod pythonapp 
 ```
 
+Now you can look at [pod management using deployments](../deployment).
+
 [^1]: https://kubernetes.io/docs/concepts/workloads/pods/

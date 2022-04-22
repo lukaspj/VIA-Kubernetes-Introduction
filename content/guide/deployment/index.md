@@ -6,7 +6,7 @@ weight: 15
 ---
 
 [Creating a pod](../pod) is cool, but it's not that different from just
-running the Docker container pod by hand. Let's try doing something 
+running the Docker container by hand. Let's try doing something 
 slightly more sophisticated.
 
 We'll create a Deployment[^1] which is a "controller" that manages

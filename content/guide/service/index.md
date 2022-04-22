@@ -12,7 +12,7 @@ interface.
 
 To begin with, modify your Python application:
 
-```yaml
+```python
 import signal
 import socket
 import sys
