@@ -2,30 +2,30 @@
 <span class=hamburger-box><span class=hamburger-inner></span></span></button></div></div><div class="container pt-2 pt-md-6 pb-3 pb-md-6"><div class=row><div class="col-12 col-md-3 mb-3"><div class=sidebar><div class=docs-menu><h4>Guide</h4><ul><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/setup/>Installation</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/containers/>Containers</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/pod/>Pods</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/deployment/>Deployment</a></li><li class=active><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/service/>Service</a></li><li><a href=https://lukaspj.github.io/VIA-Kubernetes-Introduction/guide/configure/></a></li></ul></div></div></div><div class="col-12 col-md-9"><h1 class=title>Service</h1><div class=content><p>In Kubernetes the term &ldquo;Service&rdquo;<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> is used for loadbalancers inside the cluster.
 In this section, we will explore how to communicate with multiple pods using
 these loadbalancers so you can communicate with any of pods through a single
-interface.</p><p>To begin with, modify your Python application:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=l>import signal</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>import socket</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>import sys</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>from flask import Flask</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>app = Flask(__name__)</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span>@<span class=l>app.route(&#34;/&#34;)</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>def hello()</span><span class=p>:</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>return f&#34;Hello World! My name is {socket.gethostname()}&#34;</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>def terminate(signal, frame)</span><span class=p>:</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>sys.exit(0)</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>if __name__ == &#34;__main__&#34;:</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c># Workaround for Flask not always respecting sigterm</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>signal.signal(signal.SIGTERM, terminate)</span><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>
-</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>app.run(host=&#39;0.0.0.0&#39;)</span><span class=w>
-</span></span></span></code></pre></div><p>And run the <a href=../containers><code>docker build</code></a> command again:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=l>docker build -t pythonapp -f Dockerfile .</span><span class=w>
+interface.</p><p>To begin with, modify your Python application:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>signal</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>socket</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>sys</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>flask</span> <span class=kn>import</span> <span class=n>Flask</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>app</span> <span class=o>=</span> <span class=n>Flask</span><span class=p>(</span><span class=vm>__name__</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@app</span><span class=o>.</span><span class=n>route</span><span class=p>(</span><span class=s2>&#34;/&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>hello</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=sa>f</span><span class=s2>&#34;Hello World! My name is </span><span class=si>{</span><span class=n>socket</span><span class=o>.</span><span class=n>gethostname</span><span class=p>()</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>terminate</span><span class=p>(</span><span class=n>signal</span><span class=p>,</span> <span class=n>frame</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>sys</span><span class=o>.</span><span class=n>exit</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Workaround for Flask not always respecting sigterm</span>
+</span></span><span class=line><span class=cl>    <span class=n>signal</span><span class=o>.</span><span class=n>signal</span><span class=p>(</span><span class=n>signal</span><span class=o>.</span><span class=n>SIGTERM</span><span class=p>,</span> <span class=n>terminate</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>app</span><span class=o>.</span><span class=n>run</span><span class=p>(</span><span class=n>host</span><span class=o>=</span><span class=s1>&#39;0.0.0.0&#39;</span><span class=p>)</span>
+</span></span></code></pre></div><p>And run the <a href=../containers><code>docker build</code></a> command again:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=l>docker build -t pythonapp -f Dockerfile .</span><span class=w>
 </span></span></span></code></pre></div><p>Kubernetes will not automatically detect that your Docker image has been
 changed, but you can ask the <code>Deployment</code> to rollout a new set of pods
 using this command:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=l>kubectl rollout restart deployment pythonapp-deployment</span><span class=w>
