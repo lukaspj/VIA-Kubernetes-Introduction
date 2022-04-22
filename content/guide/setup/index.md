@@ -2,7 +2,7 @@
 title: "Installation"
 date: 2022-04-20T09:33:09+02:00
 draft: false
-weight: 100
+weight: 5
 ---
 
 We will use Docker For Desktop which is free for smaller companies and 
@@ -11,6 +11,8 @@ It supports both Mac and Windows.
 
  * [Install Docker For Desktop on Mac](https://docs.docker.com/desktop/mac/install/)
  * [Install Docker For Desktop on Windows](https://docs.docker.com/desktop/windows/install/)
+
+Verify that Docker is working by running the following command: `docker ps`
 
 And then [enable Kubernetes](https://docs.docker.com/desktop/kubernetes/).
 
