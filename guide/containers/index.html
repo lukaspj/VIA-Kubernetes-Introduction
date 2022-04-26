@@ -12,14 +12,17 @@ describing &ldquo;how to run my application&rdquo;.</p><p>Docker is not the only
 containerization, and it has quickly become the golden standard of how
 we operate our applications across the industry.</p><h2 id=your-first-docker-application>Your first Docker application</h2><p>To keep it simple we will stick to a very simple Python application. You
 don&rsquo;t have to install Python for this example.</p><p>First create a folder somewhere for this project. Then put the following
-file in that folder calling it <code>app.py</code>:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>flask</span> <span class=kn>import</span> <span class=n>Flask</span>
+file in that folder calling it <code>app.py</code>:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>signal</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>sys</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>flask</span> <span class=kn>import</span> <span class=n>Flask</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=n>app</span> <span class=o>=</span> <span class=n>Flask</span><span class=p>(</span><span class=vm>__name__</span><span class=p>)</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=nd>@app</span><span class=o>.</span><span class=n>route</span><span class=p>(</span><span class=s2>&#34;/&#34;</span><span class=p>)</span>
 </span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>hello</span><span class=p>():</span>
-</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=s2>&#34;Hello World!&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=sa>f</span><span class=s2>&#34;Hello World!&#34;</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>terminate</span><span class=p>(</span><span class=n>signal</span><span class=p>,</span> <span class=n>frame</span><span class=p>):</span>
@@ -29,6 +32,7 @@ file in that folder calling it <code>app.py</code>:</p><div class=highlight><pre
 </span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
 </span></span><span class=line><span class=cl>    <span class=c1># Workaround for Flask not always respecting sigterm</span>
 </span></span><span class=line><span class=cl>    <span class=n>signal</span><span class=o>.</span><span class=n>signal</span><span class=p>(</span><span class=n>signal</span><span class=o>.</span><span class=n>SIGTERM</span><span class=p>,</span> <span class=n>terminate</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>    <span class=n>app</span><span class=o>.</span><span class=n>run</span><span class=p>(</span><span class=n>host</span><span class=o>=</span><span class=s1>&#39;0.0.0.0&#39;</span><span class=p>)</span>
 </span></span></code></pre></div><p>We&rsquo;ll not care too much about the Python contents, just know that running
 this Python script will start a webserver on port <code>5000</code> which will answer
