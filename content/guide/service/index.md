@@ -87,5 +87,11 @@ apply -f service.yaml` then you should be able to go to
 [localhost:30005](http://localhost:30005) and see that you reach one 
 of your pods.
 
+To clean up, just delete the service:
+
+```yaml
+kubectl delete service/pythonapp
+```
+
 [^1]: https://kubernetes.io/docs/concepts/services-networking/service/
 [^2]: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport

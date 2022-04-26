@@ -34,6 +34,9 @@ First create a folder somewhere for this project. Then put the following
 file in that folder calling it `app.py`:
 
 ```python
+import signal
+import sys
+
 from flask import Flask
 
 app = Flask(__name__)
@@ -41,7 +44,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    return "Hello World!"
+    return f"Hello World!"
 
 
 def terminate(signal, frame):
@@ -51,6 +54,7 @@ def terminate(signal, frame):
 if __name__ == "__main__":
     # Workaround for Flask not always respecting sigterm
     signal.signal(signal.SIGTERM, terminate)
+
     app.run(host='0.0.0.0')
 ```
 

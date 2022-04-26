@@ -5,14 +5,19 @@ draft: false
 weight: 5
 ---
 
-We will use Docker For Desktop which is free for smaller companies and 
+We will use Docker Desktop which is free for smaller companies and 
 costs a small fee per developer for large companies.
 It supports both Mac and Windows.
 
- * [Install Docker For Desktop on Mac](https://docs.docker.com/desktop/mac/install/)
- * [Install Docker For Desktop on Windows](https://docs.docker.com/desktop/windows/install/)
+ * [Install Docker Desktop on Mac](https://docs.docker.com/desktop/mac/install/)
+ * [Install Docker Desktop on Windows](https://docs.docker.com/desktop/windows/install/)
 
 Verify that Docker is working by running the following command: `docker ps`
+
+```bash
+❯ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+```
 
 And then [enable Kubernetes](https://docs.docker.com/desktop/kubernetes/).
 
@@ -32,4 +37,4 @@ kube-system   kube-scheduler-docker-desktop            1/1     Running   17 (80s
 kube-system   storage-provisioner                      1/1     Running   2 (40s ago)    18d
 ```
 
-Is it looking alright? Great! Then proceed to [deploying a simple app]()
+Is it looking alright? Great! Then proceed to [creating your first container](../containers).

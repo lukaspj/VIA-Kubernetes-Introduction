@@ -120,4 +120,11 @@ we'd have to forward once for each pod and it would be on different ports.
 
 We'll cover a solution for this in the [Service topic](../service).
 
+You can delete the deployment again to clean up, but don't do it yet!
+You'll need it for the [Service topic](../service).
+
+```yaml
+kubectl delete deployment/pythonapp-deployment
+```
+
 [^1]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/

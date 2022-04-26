@@ -5,7 +5,7 @@ draft: false
 ---
 
 This page contains a guide for installing a very simple Kubernetes
-setup on your local machine using Docker For Desktop.
+setup on your local machine using Docker Desktop.
 
 This guide was written for the presentation given by the Carya
 team at the VIA University College in Horsens.
