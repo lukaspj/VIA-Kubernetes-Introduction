@@ -3,6 +3,11 @@ title: "Service"
 date: 2022-04-22T14:02:53+02:00
 draft: false
 weight: 20
+summary: |
+    In Kubernetes the term "Service" is used for loadbalancers inside the cluster.
+    In this section, we will explore how to communicate with multiple pods using
+    these loadbalancers so you can communicate with any of pods through a single
+    interface.
 ---
 
 In Kubernetes the term "Service"[^1] is used for loadbalancers inside the cluster.

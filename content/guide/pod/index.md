@@ -3,6 +3,10 @@ title: "Pods"
 date: 2022-04-22T14:02:36+02:00
 draft: false
 weight: 10
+summary: |
+    In Kubernetes, a "Pod" is the smallest deployable unit possible.
+    This is kind of an abstract description. It's easiest to think of as
+    a pod = a container.
 ---
 
 In Kubernetes, a "Pod"[^1] is the smallest deployable unit possible.

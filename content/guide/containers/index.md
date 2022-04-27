@@ -3,6 +3,10 @@ title: "Containers"
 date: 2022-04-21T12:25:57+02:00
 draft: false
 weight: 7
+summary: |
+    A container is an "isolated process", it's easiest to just think of it
+    as a VM. The benefits of containers is that you have a self-contained
+    run-time environment that describes how to run your application.
 ---
 
 A container is an "isolated process", it's easiest to just think of it 
